@@ -400,11 +400,13 @@ components:
 
     AdminLoginResult:
       type: object
-      required: [success, username]
+      required: [success, username, token]
       properties:
         success:
           type: boolean
         username:
+          type: string
+        token:
           type: string
 
     AdminSession:

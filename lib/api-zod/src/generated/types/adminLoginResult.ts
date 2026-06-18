@@ -9,4 +9,5 @@
 export interface AdminLoginResult {
   success: boolean;
   username: string;
+  token: string;
 }

@@ -17,6 +17,26 @@ const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
 
 let _baseUrl: string | null = null;
 let _authTokenGetter: AuthTokenGetter | null = null;
+const _customHeaders: Map<string, string> = new Map();
+
+/**
+ * Set a custom header that will be attached to every request.
+ * Pass `null` as the value to remove a previously-set header.
+ */
+export function setCustomHeader(key: string, value: string | null): void {
+  if (value === null) {
+    _customHeaders.delete(key.toLowerCase());
+  } else {
+    _customHeaders.set(key.toLowerCase(), value);
+  }
+}
+
+/**
+ * Remove a custom header that was previously set via setCustomHeader.
+ */
+export function clearCustomHeader(key: string): void {
+  _customHeaders.delete(key.toLowerCase());
+}
 
 /**
  * Set a base URL that is prepended to every relative request URL
@@ -335,7 +355,10 @@ export async function customFetch<T = unknown>(
     throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
   }
 
-  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
+  const customHeadersInit: Record<string, string> = {};
+  _customHeaders.forEach((value, key) => { customHeadersInit[key] = value; });
+
+  const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, customHeadersInit, headersInit);
 
   if (
     typeof init.body === "string" &&

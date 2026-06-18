@@ -138,6 +138,7 @@ export interface AdminLoginInput {
 export interface AdminLoginResult {
   success: boolean;
   username: string;
+  token: string;
 }
 
 export interface AdminSession {

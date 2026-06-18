@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useLocation } from "wouter";
-import { useAdminLogin, useGetAdminMe, getGetAdminMeQueryKey } from "@workspace/api-client-react";
+import { useAdminLogin, useGetAdminMe, getGetAdminMeQueryKey, setCustomHeader } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { UtensilsCrossed } from "lucide-react";
@@ -24,7 +24,9 @@ export default function AdminLogin() {
     loginMutation.mutate(
       { data: { username, password } },
       {
-        onSuccess: () => {
+        onSuccess: (data) => {
+          localStorage.setItem("admin-token", data.token);
+          setCustomHeader("x-admin-token", data.token);
           setLocation("/admin/dashboard");
         },
         onError: () => {

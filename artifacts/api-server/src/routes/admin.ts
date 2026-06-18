@@ -25,7 +25,7 @@ router.post("/admin/login", async (req, res) => {
     const token = generateToken();
     sessions.add(token);
     res.set("X-Admin-Token", token);
-    res.json({ success: true, username: ADMIN_USERNAME });
+    res.json({ success: true, username: ADMIN_USERNAME, token });
   } else {
     res.status(401).json({ error: "Invalid credentials" });
   }

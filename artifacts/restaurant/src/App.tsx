@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import { CartProvider } from "@/hooks/use-cart";
 import { ThemeProvider } from "@/components/theme-provider";
+import { setCustomHeader } from "@workspace/api-client-react";
 
 import Landing from "@/pages/landing";
 import Menu from "@/pages/menu";
@@ -12,6 +13,11 @@ import Cart from "@/pages/cart";
 import Queue from "@/pages/queue";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
+
+const savedToken = localStorage.getItem("admin-token");
+if (savedToken) {
+  setCustomHeader("x-admin-token", savedToken);
+}
 
 const queryClient = new QueryClient();
 

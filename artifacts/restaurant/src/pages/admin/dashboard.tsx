@@ -12,7 +12,8 @@ import {
   getGetOrderQueryKey,
   getHealthCheckQueryKey,
   useHealthCheck,
-  useGetOrder
+  useGetOrder,
+  clearCustomHeader
 } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -56,6 +57,8 @@ export default function AdminDashboard() {
   const handleLogout = () => {
     logoutMutation.mutate(undefined, {
       onSuccess: () => {
+        localStorage.removeItem("admin-token");
+        clearCustomHeader("x-admin-token");
         queryClient.clear();
         setLocation("/admin");
       }
