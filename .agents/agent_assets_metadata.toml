@@ -1,0 +1,44 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "uErB1PjoRrmzirqj_92Tj"
+uri = "file://artifacts/restaurant/public/images/burger.png"
+type = "image"
+title = "Gourmet beef burger moody"
+
+[[generated]]
+id = "yEy9ynXzMUN20jjyvtnbf"
+uri = "file://artifacts/restaurant/public/images/pizza.png"
+type = "image"
+title = "Artisan margherita pizza moody"
+
+[[generated]]
+id = "xfyUfR0K4X9GL_bTZCyLV"
+uri = "file://artifacts/restaurant/public/images/pasta.png"
+type = "image"
+title = "Handmade pasta red sauce"
+
+[[generated]]
+id = "nh2vO6A69GUXHROAlZhYa"
+uri = "file://artifacts/restaurant/public/images/drinks.png"
+type = "image"
+title = "Craft cocktail moody lighting"
+
+[[generated]]
+id = "OPFutWi3nrA3gpvFFtzCT"
+uri = "file://artifacts/restaurant/public/images/desserts.png"
+type = "image"
+title = "Decadent chocolate dessert"
+
+[[generated]]
+id = "Bz6yTzxu0egcRuSbszySW"
+uri = "file://artifacts/restaurant/public/images/chicken.png"
+type = "image"
+title = "Crispy fried chicken"
+
+[[generated]]
+id = "esvxTik0L2Cioj0vWLxwC"
+uri = "file://artifacts/restaurant/public/images/rice.png"
+type = "image"
+title = "Aromatic saffron rice"
