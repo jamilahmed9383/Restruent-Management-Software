@@ -185,6 +185,23 @@ paths:
               schema:
                 $ref: "#/components/schemas/AdminStats"
 
+  /admin/history:
+    get:
+      operationId: getAdminHistory
+      tags: [admin]
+      summary: Get date-wise sales history (delivered orders only)
+      responses:
+        "200":
+          description: Daily sales records
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailySalesRecord"
+        "401":
+          description: Unauthorized
+
   /admin/login:
     post:
       operationId: adminLogin
@@ -388,6 +405,18 @@ components:
           type: string
         count:
           type: integer
+
+    DailySalesRecord:
+      type: object
+      required: [date, totalOrders, totalRevenue]
+      properties:
+        date:
+          type: string
+          description: Date in YYYY-MM-DD format
+        totalOrders:
+          type: integer
+        totalRevenue:
+          type: number
 
     AdminLoginInput:
       type: object

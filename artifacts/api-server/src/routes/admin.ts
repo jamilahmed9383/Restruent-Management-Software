@@ -1,6 +1,6 @@
 import { Router, type Request, type Response } from "express";
 import { db, ordersTable } from "@workspace/db";
-import { notInArray, desc, count, sum } from "drizzle-orm";
+import { eq, notInArray, desc, count, sum, sql } from "drizzle-orm";
 import { logger } from "../lib/logger";
 
 const router = Router();
@@ -56,8 +56,8 @@ router.get("/admin/stats", async (req, res) => {
     const activeStatuses = ["order_received", "payment_confirmed", "accepted", "preparing", "ready"];
     const activeOrders = allOrders.filter((o) => activeStatuses.includes(o.status)).length;
 
-    const paidOrders = allOrders.filter((o) => o.paymentStatus === "paid");
-    const totalRevenue = paidOrders.reduce((acc, o) => acc + parseFloat(o.total as string), 0);
+    const deliveredOrders = allOrders.filter((o) => o.status === "delivered");
+    const totalRevenue = deliveredOrders.reduce((acc, o) => acc + parseFloat(o.total as string), 0);
     const pendingPayments = allOrders.filter((o) => o.paymentStatus === "pending" && o.status !== "cancelled").length;
 
     const statusCounts = new Map<string, number>();
@@ -91,6 +91,30 @@ router.get("/admin/stats", async (req, res) => {
     });
   } catch (err) {
     logger.error({ err }, "Error fetching admin stats");
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+router.get("/admin/history", async (req, res) => {
+  if (!isAuthenticated(req)) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+  try {
+    const rows = await db
+      .select({
+        date: sql<string>`DATE(${ordersTable.createdAt})`,
+        totalOrders: sql<number>`COUNT(*)::int`,
+        totalRevenue: sql<number>`COALESCE(SUM(${ordersTable.total}::numeric), 0)::float`,
+      })
+      .from(ordersTable)
+      .where(eq(ordersTable.status, "delivered"))
+      .groupBy(sql`DATE(${ordersTable.createdAt})`)
+      .orderBy(desc(sql`DATE(${ordersTable.createdAt})`));
+
+    res.json(rows);
+  } catch (err) {
+    logger.error({ err }, "Error fetching sales history");
     res.status(500).json({ error: "Internal server error" });
   }
 });

@@ -10,6 +10,7 @@ export * from './adminLoginInput';
 export * from './adminLoginResult';
 export * from './adminSession';
 export * from './adminStats';
+export * from './dailySalesRecord';
 export * from './healthStatus';
 export * from './listMenuItemsParams';
 export * from './listOrdersParams';

@@ -130,6 +130,13 @@ export interface AdminStats {
   recentOrders: Order[];
 }
 
+export interface DailySalesRecord {
+  /** Date in YYYY-MM-DD format */
+  date: string;
+  totalOrders: number;
+  totalRevenue: number;
+}
+
 export interface AdminLoginInput {
   username: string;
   password: string;

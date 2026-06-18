@@ -194,6 +194,17 @@ export const GetAdminStatsResponse = zod.object({
 
 
 /**
+ * @summary Get date-wise sales history (delivered orders only)
+ */
+export const GetAdminHistoryResponseItem = zod.object({
+  "date": zod.string().describe('Date in YYYY-MM-DD format'),
+  "totalOrders": zod.number(),
+  "totalRevenue": zod.number()
+})
+export const GetAdminHistoryResponse = zod.array(GetAdminHistoryResponseItem)
+
+
+/**
  * @summary Admin login
  */
 export const AdminLoginBody = zod.object({

@@ -24,6 +24,7 @@ import type {
   AdminLoginResult,
   AdminSession,
   AdminStats,
+  DailySalesRecord,
   HealthStatus,
   ListMenuItemsParams,
   ListOrdersParams,
@@ -730,6 +731,83 @@ export function useGetAdminStats<TData = Awaited<ReturnType<typeof getAdminStats
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetAdminStatsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetAdminHistoryUrl = () => {
+
+
+
+
+  return `/api/admin/history`
+}
+
+/**
+ * @summary Get date-wise sales history (delivered orders only)
+ */
+export const getAdminHistory = async ( options?: RequestInit): Promise<DailySalesRecord[]> => {
+
+  return customFetch<DailySalesRecord[]>(getGetAdminHistoryUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetAdminHistoryQueryKey = () => {
+    return [
+    `/api/admin/history`
+    ] as const;
+    }
+
+
+export const getGetAdminHistoryQueryOptions = <TData = Awaited<ReturnType<typeof getAdminHistory>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetAdminHistoryQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getAdminHistory>>> = ({ signal }) => getAdminHistory({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getAdminHistory>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetAdminHistoryQueryResult = NonNullable<Awaited<ReturnType<typeof getAdminHistory>>>
+export type GetAdminHistoryQueryError = ErrorType<void>
+
+
+/**
+ * @summary Get date-wise sales history (delivered orders only)
+ */
+
+export function useGetAdminHistory<TData = Awaited<ReturnType<typeof getAdminHistory>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getAdminHistory>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetAdminHistoryQueryOptions(options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
