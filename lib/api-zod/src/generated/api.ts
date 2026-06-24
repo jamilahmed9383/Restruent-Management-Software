@@ -205,6 +205,65 @@ export const GetAdminHistoryResponse = zod.array(GetAdminHistoryResponseItem)
 
 
 /**
+ * @summary Get full business analytics
+ */
+export const GetAdminAnalyticsResponse = zod.object({
+  "bestSellers": zod.array(zod.object({
+  "name": zod.string(),
+  "totalQuantity": zod.number(),
+  "totalRevenue": zod.number()
+})),
+  "peakHours": zod.array(zod.object({
+  "hour": zod.number(),
+  "orderCount": zod.number()
+})),
+  "revenueByDayOfWeek": zod.array(zod.object({
+  "dayOfWeek": zod.string(),
+  "dayIndex": zod.number(),
+  "totalRevenue": zod.number(),
+  "orderCount": zod.number()
+})),
+  "orderCompletionRate": zod.number(),
+  "averageOrderValue": zod.number(),
+  "topTables": zod.array(zod.object({
+  "tableNumber": zod.number(),
+  "orderCount": zod.number()
+})),
+  "averageRating": zod.number(),
+  "totalReviews": zod.number()
+})
+
+
+/**
+ * @summary List all customer reviews
+ */
+export const ListAdminReviewsResponseItem = zod.object({
+  "id": zod.number(),
+  "tableNumber": zod.number(),
+  "orderId": zod.number().nullish(),
+  "rating": zod.number(),
+  "comment": zod.string().nullish(),
+  "createdAt": zod.string()
+})
+export const ListAdminReviewsResponse = zod.array(ListAdminReviewsResponseItem)
+
+
+/**
+ * @summary Submit a customer review
+ */
+export const submitReviewBodyRatingMax = 5;
+
+
+
+export const SubmitReviewBody = zod.object({
+  "tableNumber": zod.number(),
+  "orderId": zod.number().optional(),
+  "rating": zod.number().min(1).max(submitReviewBodyRatingMax),
+  "comment": zod.string().optional()
+})
+
+
+/**
  * @summary Admin login
  */
 export const AdminLoginBody = zod.object({

@@ -152,6 +152,62 @@ export interface AdminSession {
   username: string;
 }
 
+export interface ReviewInput {
+  tableNumber: number;
+  orderId?: number;
+  /**
+     * @minimum 1
+     * @maximum 5
+     */
+  rating: number;
+  comment?: string;
+}
+
+export interface CustomerReview {
+  id: number;
+  tableNumber: number;
+  /** @nullable */
+  orderId?: number | null;
+  rating: number;
+  /** @nullable */
+  comment?: string | null;
+  createdAt: string;
+}
+
+export interface BestSellerItem {
+  name: string;
+  totalQuantity: number;
+  totalRevenue: number;
+}
+
+export interface PeakHour {
+  hour: number;
+  orderCount: number;
+}
+
+export interface DayOfWeekStat {
+  dayOfWeek: string;
+  dayIndex: number;
+  totalRevenue: number;
+  orderCount: number;
+}
+
+export interface TopTable {
+  tableNumber: number;
+  orderCount: number;
+}
+
+export interface BusinessAnalytics {
+  bestSellers: BestSellerItem[];
+  peakHours: PeakHour[];
+  revenueByDayOfWeek: DayOfWeekStat[];
+  orderCompletionRate: number;
+  averageOrderValue: number;
+  topTables: TopTable[];
+  averageRating: number;
+  totalReviews: number;
+}
+
 export type ListMenuItemsParams = {
 category?: string;
 search?: string;

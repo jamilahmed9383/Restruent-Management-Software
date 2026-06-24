@@ -21,14 +21,24 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LogOut, ReceiptText, ChefHat, CheckCircle2, AlertCircle, Activity, Search, TrendingUp, Calendar, DollarSign, QrCode } from "lucide-react";
+import { LogOut, ReceiptText, ChefHat, AlertCircle, Activity, Search, TrendingUp, Calendar, DollarSign, QrCode, Star, BarChart3 } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import QRCodesTab from "./qr-codes";
+import AnalyticsTab from "./analytics";
+import ReviewsTab from "./reviews-tab";
 
 const STATUS_TABS = ["all", "active", "completed"];
-const MAIN_TABS = ["orders", "history", "qrcodes"] as const;
+const MAIN_TABS = ["orders", "analytics", "reviews", "history", "qrcodes"] as const;
 type MainTab = (typeof MAIN_TABS)[number];
+
+const TAB_CONFIG: Record<MainTab, { label: string; icon: any }> = {
+  orders:    { label: "Orders",        icon: ReceiptText },
+  analytics: { label: "Analytics",     icon: BarChart3   },
+  reviews:   { label: "Reviews",       icon: Star        },
+  history:   { label: "Sales History", icon: TrendingUp  },
+  qrcodes:   { label: "QR Codes",      icon: QrCode      },
+};
 
 const getNextStatusOptions = (current: string) => {
   switch (current) {
@@ -135,19 +145,20 @@ export default function AdminDashboard() {
         </div>
 
         {/* Main Tab Switcher */}
-        <div className="flex gap-2 bg-muted/50 p-1 rounded-2xl w-fit">
-          {MAIN_TABS.map(tab => (
-            <button
-              key={tab}
-              onClick={() => setMainTab(tab)}
-              className={`px-5 py-2 text-sm font-medium rounded-xl capitalize transition-colors flex items-center gap-2 ${mainTab === tab ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
-            >
-              {tab === "orders" && <ReceiptText className="w-4 h-4" />}
-              {tab === "history" && <TrendingUp className="w-4 h-4" />}
-              {tab === "qrcodes" && <QrCode className="w-4 h-4" />}
-              {tab === "orders" ? "Orders" : tab === "history" ? "Sales History" : "QR Codes"}
-            </button>
-          ))}
+        <div className="flex flex-wrap gap-2">
+          {MAIN_TABS.map(tab => {
+            const { label, icon: Icon } = TAB_CONFIG[tab];
+            return (
+              <button
+                key={tab}
+                onClick={() => setMainTab(tab)}
+                className={`px-4 py-2 text-sm font-medium rounded-xl transition-colors flex items-center gap-2 border ${mainTab === tab ? 'bg-background border-border shadow-sm text-foreground' : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50'}`}
+              >
+                <Icon className="w-4 h-4" />
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Orders Section */}
@@ -250,6 +261,12 @@ export default function AdminDashboard() {
 
         {/* QR Codes Section */}
         {mainTab === "qrcodes" && <QRCodesTab />}
+
+        {/* Analytics Section */}
+        {mainTab === "analytics" && <AnalyticsTab adminEnabled={!!admin} />}
+
+        {/* Reviews Section */}
+        {mainTab === "reviews" && <ReviewsTab adminEnabled={!!admin} />}
 
         {/* History Section */}
         {mainTab === "history" && (

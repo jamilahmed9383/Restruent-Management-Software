@@ -202,6 +202,57 @@ paths:
         "401":
           description: Unauthorized
 
+  /admin/analytics:
+    get:
+      operationId: getAdminAnalytics
+      tags: [admin]
+      summary: Get full business analytics
+      responses:
+        "200":
+          description: Business analytics data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BusinessAnalytics"
+        "401":
+          description: Unauthorized
+
+  /admin/reviews:
+    get:
+      operationId: listAdminReviews
+      tags: [admin]
+      summary: List all customer reviews
+      responses:
+        "200":
+          description: List of reviews
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CustomerReview"
+        "401":
+          description: Unauthorized
+
+  /reviews:
+    post:
+      operationId: submitReview
+      tags: [orders]
+      summary: Submit a customer review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReviewInput"
+      responses:
+        "201":
+          description: Review submitted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CustomerReview"
+
   /admin/login:
     post:
       operationId: adminLogin
@@ -444,3 +495,106 @@ components:
       properties:
         username:
           type: string
+
+    ReviewInput:
+      type: object
+      required: [tableNumber, rating]
+      properties:
+        tableNumber:
+          type: integer
+        orderId:
+          type: integer
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        comment:
+          type: string
+
+    CustomerReview:
+      type: object
+      required: [id, tableNumber, rating, createdAt]
+      properties:
+        id:
+          type: integer
+        tableNumber:
+          type: integer
+        orderId:
+          type: ["integer", "null"]
+        rating:
+          type: integer
+        comment:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+
+    BestSellerItem:
+      type: object
+      required: [name, totalQuantity, totalRevenue]
+      properties:
+        name:
+          type: string
+        totalQuantity:
+          type: integer
+        totalRevenue:
+          type: number
+
+    PeakHour:
+      type: object
+      required: [hour, orderCount]
+      properties:
+        hour:
+          type: integer
+        orderCount:
+          type: integer
+
+    DayOfWeekStat:
+      type: object
+      required: [dayOfWeek, dayIndex, totalRevenue, orderCount]
+      properties:
+        dayOfWeek:
+          type: string
+        dayIndex:
+          type: integer
+        totalRevenue:
+          type: number
+        orderCount:
+          type: integer
+
+    TopTable:
+      type: object
+      required: [tableNumber, orderCount]
+      properties:
+        tableNumber:
+          type: integer
+        orderCount:
+          type: integer
+
+    BusinessAnalytics:
+      type: object
+      required: [bestSellers, peakHours, revenueByDayOfWeek, orderCompletionRate, averageOrderValue, topTables, averageRating, totalReviews]
+      properties:
+        bestSellers:
+          type: array
+          items:
+            $ref: "#/components/schemas/BestSellerItem"
+        peakHours:
+          type: array
+          items:
+            $ref: "#/components/schemas/PeakHour"
+        revenueByDayOfWeek:
+          type: array
+          items:
+            $ref: "#/components/schemas/DayOfWeekStat"
+        orderCompletionRate:
+          type: number
+        averageOrderValue:
+          type: number
+        topTables:
+          type: array
+          items:
+            $ref: "#/components/schemas/TopTable"
+        averageRating:
+          type: number
+        totalReviews:
+          type: integer

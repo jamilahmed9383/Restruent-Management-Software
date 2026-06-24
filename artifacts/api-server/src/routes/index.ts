@@ -4,6 +4,7 @@ import menuRouter from "./menu";
 import ordersRouter from "./orders";
 import queueRouter from "./queue";
 import adminRouter from "./admin";
+import reviewsRouter from "./reviews";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(menuRouter);
 router.use(ordersRouter);
 router.use(queueRouter);
 router.use(adminRouter);
+router.use(reviewsRouter);
 
 export default router;
