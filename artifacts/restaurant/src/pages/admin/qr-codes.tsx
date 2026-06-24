@@ -1,26 +1,37 @@
-import { useState, useRef } from "react";
-import { Printer, Download, QrCode } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Printer, Download, QrCode, Plus, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
+const STORAGE_KEY = "lumina-qr-tables";
 
 interface QRTableCardProps {
   tableNumber: number;
   appUrl: string;
+  onRemove: (n: number) => void;
 }
 
-function QRTableCard({ tableNumber, appUrl }: QRTableCardProps) {
+function QRTableCard({ tableNumber, appUrl, onRemove }: QRTableCardProps) {
   const url = `${appUrl}?table=${tableNumber}`;
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&margin=10&data=${encodeURIComponent(url)}`;
+  const qrHiRes = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(url)}`;
 
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = `https://api.qrserver.com/v1/create-qr-code/?size=400x400&margin=20&data=${encodeURIComponent(url)}`;
+    link.href = qrHiRes;
     link.download = `table-${tableNumber}-qr.png`;
     link.target = "_blank";
     link.click();
   };
 
   return (
-    <div className="qr-card bg-white border border-border rounded-2xl p-5 flex flex-col items-center gap-3 shadow-sm">
+    <div className="qr-card bg-white border border-border rounded-2xl p-5 flex flex-col items-center gap-3 shadow-sm relative group">
+      <button
+        onClick={() => onRemove(tableNumber)}
+        className="no-print absolute top-3 right-3 w-6 h-6 rounded-full bg-muted hover:bg-destructive hover:text-destructive-foreground text-muted-foreground flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        title="Remove table"
+      >
+        <X className="w-3 h-3" />
+      </button>
       <div className="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center">
         <span className="font-serif font-bold text-primary text-sm">T{tableNumber}</span>
       </div>
@@ -48,75 +59,127 @@ function QRTableCard({ tableNumber, appUrl }: QRTableCardProps) {
 }
 
 export default function QRCodesTab() {
-  const [tableCount, setTableCount] = useState(10);
-  const [inputValue, setInputValue] = useState("10");
-  const printRef = useRef<HTMLDivElement>(null);
+  const [tables, setTables] = useState<number[]>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [inputValue, setInputValue] = useState("");
+  const [error, setError] = useState("");
 
   const appUrl = `${window.location.protocol}//${window.location.host}`;
-  const tables = Array.from({ length: tableCount }, (_, i) => i + 1);
 
-  const handlePrint = () => {
-    window.print();
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(tables));
+  }, [tables]);
+
+  const handleAdd = () => {
+    const num = parseInt(inputValue.trim(), 10);
+    if (isNaN(num) || num < 1 || num > 999) {
+      setError("Enter a valid table number (1–999)");
+      return;
+    }
+    if (tables.includes(num)) {
+      setError(`Table ${num} is already added`);
+      return;
+    }
+    setTables(prev => [...prev, num].sort((a, b) => a - b));
+    setInputValue("");
+    setError("");
   };
 
-  const handleCountChange = (val: string) => {
-    setInputValue(val);
-    const n = parseInt(val, 10);
-    if (!isNaN(n) && n >= 1 && n <= 100) {
-      setTableCount(n);
-    }
+  const handleRemove = (n: number) => {
+    setTables(prev => prev.filter(t => t !== n));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleAdd();
   };
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Controls */}
-      <div className="bg-background border border-border rounded-3xl p-6 shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 no-print">
-        <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
-              <QrCode className="w-4 h-4 text-primary" />
-            </div>
+      {/* Add Table Control */}
+      <div className="bg-background border border-border rounded-3xl p-6 shadow-sm no-print">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-9 h-9 bg-primary/10 rounded-xl flex items-center justify-center">
+            <QrCode className="w-4 h-4 text-primary" />
+          </div>
+          <div>
             <h2 className="font-serif font-bold text-lg">QR Code Generator</h2>
+            <p className="text-xs text-muted-foreground">Add tables to generate their QR codes. Codes are saved until you remove them.</p>
           </div>
-          <p className="text-sm text-muted-foreground pl-11">
-            Each QR code links directly to the menu for that table. Print and laminate them.
-          </p>
         </div>
-        <div className="flex items-center gap-3 pl-11 sm:pl-0">
-          <div className="flex items-center gap-2">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">Number of tables:</label>
-            <input
-              type="number"
-              min={1}
-              max={100}
-              value={inputValue}
-              onChange={(e) => handleCountChange(e.target.value)}
-              className="w-20 h-10 px-3 rounded-xl border border-border bg-muted/50 text-sm text-center font-bold focus:outline-none focus:ring-2 focus:ring-primary/30"
-            />
-          </div>
-          <Button onClick={handlePrint} className="rounded-xl h-10">
-            <Printer className="w-4 h-4 mr-2" />
-            Print All
-          </Button>
-        </div>
-      </div>
 
-      {/* Print header — only visible when printing */}
-      <div className="hidden print-only text-center mb-4">
-        <h1 className="text-2xl font-bold">Lumina — Table QR Codes</h1>
-        <p className="text-sm text-gray-500 mt-1">Scan to view the menu and place your order</p>
+        <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+          <div className="flex flex-col gap-1.5 flex-1">
+            <label className="text-sm font-medium text-foreground">Table Number</label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                min={1}
+                max={999}
+                value={inputValue}
+                onChange={(e) => { setInputValue(e.target.value); setError(""); }}
+                onKeyDown={handleKeyDown}
+                placeholder="e.g. 7"
+                className="flex-1 h-11 px-4 rounded-xl border border-border bg-muted/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30 font-medium"
+              />
+              <Button onClick={handleAdd} className="h-11 px-5 rounded-xl shrink-0">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Table
+              </Button>
+            </div>
+            {error && (
+              <p className="text-xs text-destructive flex items-center gap-1 mt-0.5">
+                <AlertCircle className="w-3 h-3" /> {error}
+              </p>
+            )}
+          </div>
+
+          {tables.length > 0 && (
+            <div className="flex gap-2 shrink-0 pb-px">
+              <Button variant="outline" className="h-11 rounded-xl" onClick={() => window.print()}>
+                <Printer className="w-4 h-4 mr-2" />
+                Print All ({tables.length})
+              </Button>
+              <Button
+                variant="ghost"
+                className="h-11 rounded-xl text-muted-foreground hover:text-destructive"
+                onClick={() => { setTables([]); }}
+              >
+                Clear All
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* QR Grid */}
-      <div ref={printRef} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        {tables.map((n) => (
-          <QRTableCard key={n} tableNumber={n} appUrl={appUrl} />
-        ))}
-      </div>
-
-      <p className="text-xs text-muted-foreground text-center no-print">
-        Each QR code encodes: <span className="font-mono">{appUrl}?table=N</span>
-      </p>
+      {tables.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-3 text-muted-foreground">
+          <QrCode className="w-12 h-12 opacity-20" />
+          <p className="font-medium">No tables added yet</p>
+          <p className="text-sm">Enter a table number above and click Add Table</p>
+        </div>
+      ) : (
+        <>
+          <div className="print-only hidden text-center mb-2">
+            <h1 className="text-xl font-bold">Lumina — Table QR Codes</h1>
+            <p className="text-sm text-gray-500">Scan to view the menu and place your order</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {tables.map((n) => (
+              <QRTableCard key={n} tableNumber={n} appUrl={appUrl} onRemove={handleRemove} />
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground text-center no-print">
+            Hover over a card to remove it · QR codes encode: <span className="font-mono">{appUrl}?table=N</span>
+          </p>
+        </>
+      )}
     </div>
   );
 }
