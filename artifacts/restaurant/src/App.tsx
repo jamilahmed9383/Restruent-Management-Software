@@ -13,6 +13,7 @@ import Cart from "@/pages/cart";
 import Queue from "@/pages/queue";
 import AdminLogin from "@/pages/admin/login";
 import AdminDashboard from "@/pages/admin/dashboard";
+import Kitchen from "@/pages/kitchen";
 
 const savedToken = localStorage.getItem("admin-token");
 if (savedToken) {
