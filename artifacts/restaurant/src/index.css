@@ -320,3 +320,10 @@
     inset: -1px;
   }
 }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  body { background: white !important; }
+  .qr-card { break-inside: avoid; border: 1px solid #ddd !important; }
+}

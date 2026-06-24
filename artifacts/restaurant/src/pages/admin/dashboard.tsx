@@ -21,12 +21,13 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { LogOut, ReceiptText, ChefHat, CheckCircle2, AlertCircle, Activity, Search, TrendingUp, Calendar, DollarSign } from "lucide-react";
+import { LogOut, ReceiptText, ChefHat, CheckCircle2, AlertCircle, Activity, Search, TrendingUp, Calendar, DollarSign, QrCode } from "lucide-react";
 import { format } from "date-fns";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import QRCodesTab from "./qr-codes";
 
 const STATUS_TABS = ["all", "active", "completed"];
-const MAIN_TABS = ["orders", "history"] as const;
+const MAIN_TABS = ["orders", "history", "qrcodes"] as const;
 type MainTab = (typeof MAIN_TABS)[number];
 
 const getNextStatusOptions = (current: string) => {
@@ -141,8 +142,10 @@ export default function AdminDashboard() {
               onClick={() => setMainTab(tab)}
               className={`px-5 py-2 text-sm font-medium rounded-xl capitalize transition-colors flex items-center gap-2 ${mainTab === tab ? 'bg-background shadow-sm text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
             >
-              {tab === "orders" ? <ReceiptText className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
-              {tab === "orders" ? "Orders" : "Sales History"}
+              {tab === "orders" && <ReceiptText className="w-4 h-4" />}
+              {tab === "history" && <TrendingUp className="w-4 h-4" />}
+              {tab === "qrcodes" && <QrCode className="w-4 h-4" />}
+              {tab === "orders" ? "Orders" : tab === "history" ? "Sales History" : "QR Codes"}
             </button>
           ))}
         </div>
@@ -244,6 +247,9 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* QR Codes Section */}
+        {mainTab === "qrcodes" && <QRCodesTab />}
 
         {/* History Section */}
         {mainTab === "history" && (
